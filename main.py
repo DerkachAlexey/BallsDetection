@@ -4,12 +4,18 @@ from detect_ball import DetectBall
 from config import Config
 from draw import Draw
 from preprocess import simplest_cb
-import sqlite3
+from db_master import DbMaster
 import imutils
 
 cap = cv.VideoCapture('C:/Users/alexey.derkach/Downloads/detectBall/data/5.mp4')
 
 if __name__ == '__main__':
+
+    master_of_puppets = DbMaster('results.db')
+
+    # master_of_puppets.create_db('players_results', {'player_number' : 'INTEGER', 'red_balls' : 'INTEGER', 'white_balls' : 'INTEGER'})
+    # master_of_puppets.insert_values('players_results', [1, 0, 0])
+    # master_of_puppets.insert_values('players_results', [2, 0, 0])
 
     config = Config()
 
@@ -22,13 +28,15 @@ if __name__ == '__main__':
 
     while(cap.isOpened()):
 
-        #frame = cv.imread('data/image.png')
         ret, frame = cap.read()
 
         frame_number += 1
 
         if (frame_number % 20) != 0:
             continue
+
+        if len(frame) == 0:
+            break
 
         frame = simplest_cb(frame, 10)
 
@@ -68,23 +76,16 @@ if __name__ == '__main__':
         if rectangles_second['white']:
             players_count['players2']['white'] = detectBall.calculate_games(player_2, rectangles_second)
 
-        #print(rectangles)
 
-        #print(detectBall.calculate_sets(player_1, rectangles))
-        #print(detectBall.calculate_games(separated_players, rectangles))
+        master_of_puppets.update('players_results', 1, ['red_balls', 'white_balls'], [players_count['players1']['red'], players_count['players1']['white']])
+        master_of_puppets.update('players_results', 2, ['red_balls', 'white_balls'], [players_count['players2']['red'], players_count['players2']['white']])
 
-        #cv.imshow('range', Draw.draw_range(frame, [config.get('players1')['rectangle'],
-        #                                                config.get('players2')['rectangle']]))
         cv.imshow('players_1', Draw.draw_rectangles(frame_first_players, player_1))
         cv.imshow('players_2', Draw.draw_rectangles(frame_second_players, player_2))
+
         print(players_count)
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
-
-        #cv.imwrite('out/ranges.jpg', Draw.draw_range(frame, [config.get('players1')['rectangle'],
-                                                       # config.get('players2')['rectangle']]))
-
-        #cv.imwrite('out/res.jpg', Draw.draw_rectangles(frame, separated_players))
 
     cap.release()
     cv.destroyAllWindows()
