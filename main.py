@@ -28,9 +28,25 @@ if __name__ == '__main__':
 
         frame = simplest_cb(frame, 10)
 
-        balls = detectBall.find_balls(frame, True)
+        rect_for_first_players = config.get('players1').get('rectangle')
+        rect_for_second_players = config.get('players2').get('rectangle')
 
-        separated_players = detectBall.separate_players(balls)
+        frame_first_players = frame[rect_for_first_players[1]: rect_for_first_players[3],
+                              rect_for_first_players[0]: rect_for_first_players[2]]
+        frame_second_players = frame[rect_for_second_players[1]: rect_for_second_players[3],
+                               rect_for_second_players[0]: rect_for_second_players[2]]
+
+
+
+        cv.imshow('first players', frame_first_players)
+        cv.imshow('second players', frame_second_players)
+
+
+        cv.waitKey(1)
+        first_player_balls = detectBall.find_balls(frame_first_players, True)
+        second_players_ball = detectBall.find_balls(frame_second_players, True)
+
+        separated_players = detectBall.separate_players( first_player_balls)
 
         rectangles = detectBall.find_rectangles(separated_players)
 

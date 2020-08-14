@@ -11,8 +11,8 @@ cv.ocl.setUseOpenCL(True)
 print(cv.ocl.useOpenCL())
 
 ballsColors = {'red', 'white'}
-lowerNumberBallsInLine = {'red': 6, 'white': 12}
-upperNumberBallsInLine = {'red': 6, 'white': 12}
+lowerNumberBallsInLine = {'red': 3, 'white': 6}
+upperNumberBallsInLine = {'red': 3, 'white': 6}
 
 #lower = {'red': (165, 100, 170), 'white': (0, 0, 168)}
 #upper = {'red': (186, 232, 232), 'white': (160, 30, 255)}
