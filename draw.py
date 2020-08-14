@@ -27,7 +27,7 @@ class Draw:
                 separated_player_color_ = separated_players_[separated_player_color]
 
                 for circles in separated_player_color_:
-                    print((np.min([x for x, y, radius in circles]), circles[0][1]))
+                    #print((np.min([x for x, y, radius in circles]), circles[0][1]))
 
                     image = cv.rectangle(image,
                                          (int(np.min([x for x, y, radius in circles]) - circles[0][2]),

@@ -18,7 +18,7 @@ upperNumberBallsInLine = {'red': 3, 'white': 6}
 #upper = {'red': (186, 232, 232), 'white': (160, 30, 255)}
 
 lower = {'red': (160, 100, 100), 'white': (0, 0, 168)}
-upper = {'red': (179, 255, 255), 'white': (130, 15, 255)}
+upper = {'red': (179, 255, 255), 'white': (170, 15, 255)}
 
 class DetectBall:
 
@@ -36,13 +36,13 @@ class DetectBall:
         mask = cv.erode(mask, None, iterations=2)
         mask = cv.dilate(mask, None, iterations=2)
 
-        rectangles = [self.players1['rectangle'], self.players2['rectangle']]
+        #rectangles = [self.players1['rectangle'], self.players2['rectangle']]
 
-        mask_result = np.zeros((mask.shape[0], mask.shape[1], 3), np.uint8)
-        mask_result = cv.cvtColor(mask_result, cv.COLOR_BGR2GRAY)
+        #mask_result = np.zeros((mask.shape[0], mask.shape[1], 3), np.uint8)
+        #mask_result = cv.cvtColor(mask_result, cv.COLOR_BGR2GRAY)
 
-        for x1, y1, x2, y2 in rectangles:
-            mask_result[y1:y2, x1:x2] = mask[y1:y2, x1:x2]
+        #for x1, y1, x2, y2 in rectangles:
+            #mask_result[y1:y2, x1:x2] = mask[y1:y2, x1:x2]
 
         # elliptical_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (7, 7))
         # mask_ = mask.copy()
@@ -54,7 +54,7 @@ class DetectBall:
         # cv.morphologyEx(mask, cv.MORPH_GRADIENT, rect_kernel, mask_)
         # mask = mask - mask_
 
-        return mask_result
+        return mask
 
     def calculate_all_masks(self, frame):
 
@@ -86,10 +86,10 @@ class DetectBall:
 
         blurred = cv.blur(mask, (7, 7))
 
-        #cv.imwrite('C:/Users/alexey.derkach/Documents/Ball/Ball/out/blurred_mask_' + color + '.jpg', mask)
+        cv.imwrite('C:/Users/alexey.derkach/Downloads/BallsDetection/out/blurred_mask_' + color + '.jpg', mask)
         #print("ss")
-        circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT, 1, 40,
-                                  param1=400, param2=4, minRadius=15, maxRadius=20)
+        circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT, 1, 35,
+                                  param1=400, param2=4, minRadius=20, maxRadius=25)
 
         # for test
         # image = imutils.resize(image, width=600)
@@ -197,7 +197,7 @@ class DetectBall:
 
         result = {}
 
-        self.find_lines(cv.cvtColor(image, cv.COLOR_BGR2GRAY))
+        #self.find_lines(cv.cvtColor(image, cv.COLOR_BGR2GRAY))
 
         masks = self.calculate_all_masks(image)
 
@@ -216,33 +216,31 @@ class DetectBall:
 
         return result
 
-    def separate_players(self, balls_groups):
+    def separate_players(self, balls_groups, n_player):
 
-        result = {'players1': {}, 'players2': {}}
+        player = 'players' + str(n_player)
+        result = {player : {}}
 
         for balls_groups_ in balls_groups:
 
-            result['players1'][balls_groups_] = []
-            result['players2'][balls_groups_] = []
+            result[player][balls_groups_] = []
 
             for balls_group_ in balls_groups[balls_groups_]:
 
-                balls_group_players1 = []
-                balls_group_players2 = []
+                balls_group_players = []
 
                 if len(balls_group_) > 0:
-                    center_x = np.sum([x for x, y, z in balls_group_]) / \
-                               len(balls_group_)
-
+                    # center_x = np.sum([x for x, y, z in balls_group_]) / \
+                    #            len(balls_group_)
+                    #
                     for circle in balls_group_:
-                        x, y, radius = circle
-                        if x < center_x:
-                            balls_group_players1.append(circle)
-                        else:
-                            balls_group_players2.append(circle)
+                        balls_group_players.append(circle)
+                    #     else:
+                    #         balls_group_players2.append(circle)
 
-                result['players1'][balls_groups_].append(balls_group_players1)
-                result['players2'][balls_groups_].append(balls_group_players2)
+
+                result[player][balls_groups_].append(balls_group_players)
+                #result['players2'][balls_groups_].append(balls_group_players2)
 
         return result
 
@@ -273,29 +271,30 @@ class DetectBall:
 
     def calculate_sets(self, separated_players, rectangles):
 
-        number_of_sets = {'players1': 0, 'players2': 0}
 
-        # for players1
-        rectangle = rectangles['players1']['white']
-        if len(separated_players['players1']['red']) > 0 and \
-                len(rectangle) > 0:
-            x1, y1, x2, y2 = rectangle[0]
-            for circle in separated_players['players1']['red'][0]:
-                if circle[0] < (x1 + x2) / 2:
-                    number_of_sets['players1'] += 1
-        else:
-            number_of_sets['players1'] = None
+        number_of_sets = 0
+        if list(separated_players.keys())[0] == 'players1':
+
+          rectangle = self.players1.get('rectangle')
+              #rectangles['red']
+          if len(rectangle) > 0 :
+              x1, y1, x2, y2 = rectangle
+              for circle in separated_players['players1']['red'][0]:
+                  if circle[0] < (x2 - x1) / 2:
+                      number_of_sets += 1
+          else:
+              number_of_sets = 0
 
         # for players2
-        rectangle = rectangles['players2']['white']
-        if len(separated_players['players2']['red']) > 0 and \
-                len(rectangle) > 0:
-            x1, y1, x2, y2 = rectangle[0]
-            for circle in separated_players['players2']['red'][0]:
-                if circle[0] > (x1 + x2) / 2:
-                    number_of_sets['players2'] += 1
         else:
-            number_of_sets['players2'] = None
+          rectangle = self.players2.get('rectangle')
+          if len(rectangle) > 0:
+              x1, y1, x2, y2 = rectangle
+              for circle in separated_players['players2']['red'][0]:
+                  if circle[0] > (x2 - x1) / 2:
+                      number_of_sets += 1
+          else:
+              number_of_sets = 0
 
         return number_of_sets
 
@@ -314,7 +313,7 @@ class DetectBall:
 
                 if last_ball is None:
                     last_ball = ball
-                    if (x - rectangle[0]) < 4 * r:
+                    if x < 4 * r:
                         number_of_games += 1
                     else:
                         break
@@ -327,18 +326,18 @@ class DetectBall:
 
             return number_of_games
 
-        return None
+        return number_of_games
 
     def calculate_games(self, separated_players, rectangles):
 
-        number_of_games = {'players1': 0, 'players2': 0}
+        number_of_games = 0
 
         # for players1
-        number_of_games['players1'] = None if self.calculate_games_(separated_players, rectangles, 'players1')==None \
-            else self.calculate_games_(separated_players, rectangles, 'players1')
+        if list(separated_players.keys())[0] == 'players1':
+          number_of_games = self.calculate_games_(separated_players, rectangles, 'players1')
 
         # for players2
-        number_of_games['players2'] = None if self.calculate_games_(separated_players, rectangles, 'players2')==None \
-            else 6 - self.calculate_games_(separated_players, rectangles, 'players2')
+        else :
+            number_of_games = 6 - self.calculate_games_(separated_players, rectangles, 'players2')
 
         return number_of_games
