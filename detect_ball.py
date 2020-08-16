@@ -47,7 +47,6 @@ class DetectBall:
         # color space
         # frame = imutils.resize(frame, width=600)
         blurred = cv.GaussianBlur(frame, (11, 11), 0)
-        cv.imwrite('out/blurred.jpg', blurred)
         hsv = cv.cvtColor(blurred, cv.COLOR_BGR2HSV)
 
         result = {}
