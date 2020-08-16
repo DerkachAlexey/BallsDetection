@@ -28,7 +28,7 @@ class DbMaster:
     def table_exists(self, table_name):
         exists = True
         self.__cursor.execute(''' SELECT count(*) FROM sqlite_master WHERE type='table' AND name='players_name' ''')
-        if self.__cursor.fetchone()[0]==1 :
+        if self.__cursor.fetchone()[0]==0 :
 	        exists = False
         self.__connection.commit()
         return exists

@@ -12,12 +12,12 @@ cap = cv.VideoCapture('./data/'+config.get('video_name'))
 
 if __name__ == '__main__':
 
-    master_of_puppets = DbMaster(config.get('db_name'))
+    master_db = DbMaster(config.get('db_name'))
 
-    if not master_of_puppets.table_exists(config.get('table_name')):
-        master_of_puppets.create_table('players_results', {'player_number' : 'INTEGER', 'red_balls' : 'INTEGER', 'white_balls' : 'INTEGER'})
-        master_of_puppets.insert_values('players_results', [1, 0, 0])
-        master_of_puppets.insert_values('players_results', [2, 0, 0])
+    if not master_db.table_exists(config.get('table_name')):
+        master_db.create_table(config.get('table_name'), {'player_number' : 'INTEGER', 'red_balls' : 'INTEGER', 'white_balls' : 'INTEGER'})
+        master_db.insert_values(config.get('table_name'), [1, 0, 0])
+        master_db.insert_values(config.get('table_name'), [2, 0, 0])
 
     detectBall = DetectBall(config)
 
@@ -70,8 +70,8 @@ if __name__ == '__main__':
             players_count['players2']['white'] = detectBall.calculate_games(player_2, rectangles_second)
 
 
-        master_of_puppets.update('players_results', 1, ['red_balls', 'white_balls'], [players_count['players1']['red'], players_count['players1']['white']])
-        master_of_puppets.update('players_results', 2, ['red_balls', 'white_balls'], [players_count['players2']['red'], players_count['players2']['white']])
+        master_db.update(config.get('table_name'), 1, ['red_balls', 'white_balls'], [players_count['players1']['red'], players_count['players1']['white']])
+        master_db.update(config.get('table_name'), 2, ['red_balls', 'white_balls'], [players_count['players2']['red'], players_count['players2']['white']])
 
         cv.imshow('players_1', Draw.draw_rectangles(frame_first_players, player_1))
         cv.imshow('players_2', Draw.draw_rectangles(frame_second_players, player_2))
