@@ -1,7 +1,7 @@
 # BallsDetection
 
-### Application for counting players' during the tennis play game.
-### To use this app, please, put the camera opposite the judge chair, set up the config file (description below) and run the app.
+### Application for counting players' scores during the tennis play game.
+### To use this app, please, put the camera opposite the judge chair, set up the config file (description below) and run the app (main.py).
 
 ### Config file settings:
 
