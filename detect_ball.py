@@ -36,24 +36,6 @@ class DetectBall:
         mask = cv.erode(mask, None, iterations=2)
         mask = cv.dilate(mask, None, iterations=2)
 
-        #rectangles = [self.players1['rectangle'], self.players2['rectangle']]
-
-        #mask_result = np.zeros((mask.shape[0], mask.shape[1], 3), np.uint8)
-        #mask_result = cv.cvtColor(mask_result, cv.COLOR_BGR2GRAY)
-
-        #for x1, y1, x2, y2 in rectangles:
-            #mask_result[y1:y2, x1:x2] = mask[y1:y2, x1:x2]
-
-        # elliptical_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (7, 7))
-        # mask_ = mask.copy()
-        # cv.morphologyEx(mask, cv.MORPH_TOPHAT, elliptical_kernel, mask_)
-        # mask = mask - mask_
-
-        # rect_kernel = cv.getStructuringElement(cv.MORPH_RECT, (5, 5))
-        # mask_ = mask.copy()
-        # cv.morphologyEx(mask, cv.MORPH_GRADIENT, rect_kernel, mask_)
-        # mask = mask - mask_
-
         return mask
 
     def calculate_all_masks(self, frame):
@@ -76,23 +58,13 @@ class DetectBall:
 
             mask = self.calculate_mask(hsv, color_lower, color_upper)
 
-            cv.imwrite('C:/Users/alexey.derkach/Downloads/detectBall/out/mask_' + color + '.jpg', mask)
-
             result[color] = mask
 
         return result
 
     def find_hough_circles(self, image, mask, color):
-
-        blurred = cv.blur(mask, (7, 7))
-
-        cv.imwrite('C:/Users/alexey.derkach/Downloads/BallsDetection/out/blurred_mask_' + color + '.jpg', mask)
-        #print("ss")
         circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT, 1, 35,
                                   param1=400, param2=4, minRadius=20, maxRadius=25)
-
-        # for test
-        # image = imutils.resize(image, width=600)
 
         result = []
 
@@ -106,7 +78,6 @@ class DetectBall:
                                   (0, 255, 255), 2)
                         result.append((x, y, radius))
 
-        cv.imwrite('out/circles_' + color + '.jpg', image)
         return result
 
     def find_circles(self, image, mask, color):
@@ -114,9 +85,6 @@ class DetectBall:
                                cv.RETR_EXTERNAL,
                                cv.CHAIN_APPROX_SIMPLE)
         cnts = imutils.grab_contours(cnts)
-
-        # for test
-        # image = imutils.resize(image, width=600)
 
         result = []
 
@@ -131,7 +99,6 @@ class DetectBall:
                               (0, 255, 255), 2)
                     result.append((x, y, radius))
 
-        cv.imwrite('out/circles_' + color + '.jpg', image)
         return result
 
     def find_circles_groups(self, circles):
@@ -179,25 +146,9 @@ class DetectBall:
 
         return result
 
-    def find_lines(self, image_gray):
-
-        img_to_draw = cv.cvtColor(image_gray, cv.COLOR_GRAY2BGR)
-
-        # Detect vertical lines
-        vertical_kernel = cv.getStructuringElement(cv.MORPH_RECT, (1, 10))
-        detect_vertical = cv.morphologyEx(image_gray, cv.MORPH_OPEN, vertical_kernel, iterations=2)
-        cnts = cv.findContours(detect_vertical, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-        cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-        for c in cnts:
-            cv.drawContours(img_to_draw, [c], -1, (36, 255, 12), 2)
-
-        cv.imwrite('out/lines.jpg', img_to_draw)
-
     def find_balls(self, image, hough=False):
 
         result = {}
-
-        #self.find_lines(cv.cvtColor(image, cv.COLOR_BGR2GRAY))
 
         masks = self.calculate_all_masks(image)
 
@@ -240,7 +191,6 @@ class DetectBall:
 
 
                 result[player][balls_groups_].append(balls_group_players)
-                #result['players2'][balls_groups_].append(balls_group_players2)
 
         return result
 
@@ -298,11 +248,11 @@ class DetectBall:
 
         return number_of_sets
 
-    def calculate_games_(self, separated_players, rectangles, player):
+    def calculate_games_(self, separated_players, player):
 
         number_of_games = 0
 
-        rectangle = self.players1['rectangle'] if player == 'players1' else self.players2['rectangle']
+        #rectangle = self.players1['rectangle'] if player == 'players1' else self.players2['rectangle']
         if len(separated_players[player]['white']) > 0:
             balls = {x1: (x1, y1, r) for x1, y1, r in separated_players[player]['white'][0]}
             balls = sorted(balls.items(), key=operator.itemgetter(0))
@@ -334,10 +284,10 @@ class DetectBall:
 
         # for players1
         if list(separated_players.keys())[0] == 'players1':
-          number_of_games = self.calculate_games_(separated_players, rectangles, 'players1')
+          number_of_games = self.calculate_games_(separated_players, 'players1')
 
         # for players2
         else :
-            number_of_games = 6 - self.calculate_games_(separated_players, rectangles, 'players2')
+            number_of_games = 6 - self.calculate_games_(separated_players, 'players2')
 
         return number_of_games

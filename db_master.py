@@ -7,7 +7,7 @@ class DbMaster:
         self.__connection = sqlite3.connect(db_name)
         self.__cursor = self.__connection.cursor()
 
-    def create_db(self, table_name, col_names_types):
+    def create_table(self, table_name, col_names_types):
         col_names_str = ''
         for col_name_type in col_names_types:
             col_names_str += col_name_type + ' ' + col_names_types[col_name_type] + ','
@@ -24,9 +24,16 @@ class DbMaster:
         self.__cursor.execute('''INSERT INTO ''' + table_name + ''' VALUES (''' + values_str + ''')''')
         self.__connection.commit()
 
-    # def insert_value(self, table_name, columns, values):
-    #     columns_str = ''
-    #     for column in columns:
+
+    def table_exists(self, table_name):
+        exists = True
+        self.__cursor.execute(''' SELECT count(*) FROM sqlite_master WHERE type='table' AND name='players_name' ''')
+        if self.__cursor.fetchone()[0]==1 :
+	        exists = False
+        self.__connection.commit()
+        return exists
+
+
     def update(self, table_name, player_id, columns, values):
         set_values_str = ''
         for column, value in zip(columns, values):

@@ -3,7 +3,7 @@ import json
 
 class Config:
 
-    def __init__(self, path_to_config='C:/Users/alexey.derkach/Downloads/detectBall/data/config.json'):
+    def __init__(self, path_to_config='./data/config.json'):
 
         with open(path_to_config, 'r') as file:
             self.params = json.load(file)

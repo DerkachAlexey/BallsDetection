@@ -7,17 +7,17 @@ from preprocess import simplest_cb
 from db_master import DbMaster
 import imutils
 
-cap = cv.VideoCapture('C:/Users/alexey.derkach/Downloads/detectBall/data/5.mp4')
+config = Config()
+cap = cv.VideoCapture('./data/'+config.get('video_name'))
 
 if __name__ == '__main__':
 
-    master_of_puppets = DbMaster('results.db')
+    master_of_puppets = DbMaster(config.get('db_name'))
 
-    # master_of_puppets.create_db('players_results', {'player_number' : 'INTEGER', 'red_balls' : 'INTEGER', 'white_balls' : 'INTEGER'})
-    # master_of_puppets.insert_values('players_results', [1, 0, 0])
-    # master_of_puppets.insert_values('players_results', [2, 0, 0])
-
-    config = Config()
+    if not master_of_puppets.table_exists(config.get('table_name')):
+        master_of_puppets.create_table('players_results', {'player_number' : 'INTEGER', 'red_balls' : 'INTEGER', 'white_balls' : 'INTEGER'})
+        master_of_puppets.insert_values('players_results', [1, 0, 0])
+        master_of_puppets.insert_values('players_results', [2, 0, 0])
 
     detectBall = DetectBall(config)
 
@@ -48,13 +48,6 @@ if __name__ == '__main__':
         frame_second_players = frame[rect_for_second_players[1]: rect_for_second_players[3],
                                rect_for_second_players[0]: rect_for_second_players[2]]
 
-
-
-       # cv.imshow('first players', frame_first_players)
-       # cv.imshow('second players', frame_second_players)
-
-
-        cv.waitKey(1)
         first_player_balls = detectBall.find_balls(frame_first_players, True)
         second_players_balls = detectBall.find_balls(frame_second_players, True)
 
