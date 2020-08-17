@@ -7,6 +7,8 @@
    {
       "rectangle": [1170, 400, 1600, 600]
    },
+   "video_type" : 0,
+   "rtsp_stream" : "rtsp://10.0.9.225:8554/slamtv60.264",
    "video_name" : "example.mp4",
    "db_name" : "results.db",
    "table_name" : "players_results"

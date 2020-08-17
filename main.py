@@ -5,10 +5,22 @@ from config import Config
 from draw import Draw
 from preprocess import simplest_cb
 from db_master import DbMaster
+from enum import Enum
 import imutils
 
+class VideoType(Enum):
+    FILE = 0 #read video from file
+    RTSP = 1 #read video from rtsp link
+
 config = Config()
-cap = cv.VideoCapture('./data/'+config.get('video_name'))
+videoType = VideoType(config.get('video_type'))
+
+cap = cv.VideoCapture()
+if videoType == VideoType.FILE:
+    cap = cv.VideoCapture('./data/'+config.get('video_name'))
+elif videoType == VideoType.RTSP:
+    cap = cv.VideoCapture(config.get('rtsp_stream'))
+
 
 if __name__ == '__main__':
 
@@ -34,6 +46,7 @@ if __name__ == '__main__':
 
         if (frame_number % 20) != 0:
             continue
+
 
         if len(frame) == 0:
             break

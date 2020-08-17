@@ -46,6 +46,7 @@ class DetectBall:
         # resize the frame, blur it, and convert it to the HSV
         # color space
         # frame = imutils.resize(frame, width=600)
+        print(len(frame))
         blurred = cv.GaussianBlur(frame, (11, 11), 0)
         hsv = cv.cvtColor(blurred, cv.COLOR_BGR2HSV)
 
